@@ -13,6 +13,21 @@ url = "https://www.bbc.com/news"  # BBC News URL
 
 response = requests.get(url)
 
+PAGE_TYPE_LIVE = "live"
+PAGE_TYPE_ARTICLE = "article"
+
+excluded_classes = {
+    PAGE_TYPE_LIVE: [
+        "qa-sign-in-dialog__description",
+        "lx-c-sign-in-dialog__message",
+        "qa-tv-licence-subheading",
+        "lx-commentary__meta-reporter",
+        "lx-commentary__meta-timezone",
+        "qa-contributor-name",
+        "qa-contributor-role"
+    ]
+}
+
 if response.status_code == 200:
     page_content = response.content.decode("utf-8")
 
@@ -23,8 +38,15 @@ if response.status_code == 200:
     for href, title in news_matches:
         cleaned_title = re.sub(r'\s+', ' ', title.strip())
 
-        # Check if href is a partial URL and adjust accordingly
+        page_type = None
+
+        print("href:", href)
+
         if href.startswith("/"):
+            if href.startswith("/news/"):
+                page_type = "article"
+            if href.startswith("/news/live/"):
+                page_type = "live"
             full_href = urljoin(url, href)
         else:
             full_href = href
@@ -42,30 +64,44 @@ if response.status_code == 200:
 
         page_content = response.content
 
-        # # save html
-        # if response.status_code == 200:
-        #     with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
-        #         f.write(response.content.decode("utf-8"))
-
         soup = BeautifulSoup(page_content, "html.parser")
 
-        excluded_classes = [
-            "qa-sign-in-dialog__description",
-            "lx-c-sign-in-dialog__message",
-        ]
-
         # Find paragraphs excluding those with the specified classes
-        paragraphs = [
-            p.get_text(" ", strip=True).replace("\n", " ")
-            for p in soup.find_all("p", attrs={"data-reactid": True})
-            if not any(excluded_class in p.get("class", []) for excluded_class in excluded_classes)
-        ]
+        if response.status_code == 200:
+            if page_type is PAGE_TYPE_LIVE:
+                paragraphs = [
+                    p for p in soup.find_all("p", attrs={"data-reactid": True})
+                    if not any(excluded_class in p.get("class", []) for excluded_class in excluded_classes[page_type])
+                ]
+            elif page_type is PAGE_TYPE_ARTICLE:
+                # save html
+                # with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
+                #     f.write(response.content.decode("utf-8"))
 
-        # print(paragraphs[0])
+                paragraphs = []
+                for p in soup.find_all("p", class_=["ssrcss-1q0x1qg-Paragraph", "ssrcss-hmf8ql-BoldText"]):
+                    paragraphs.append(p)
 
-        for paragraph in paragraphs:
-            print(paragraph)
-            print("-" * 50)
-        break
+                # for b in soup.find_all("b", class_="ssrcss-hmf8ql-BoldText"):
+                #     paragraphs.append(b)
+
+                print(paragraphs[-2])
+                print(paragraphs[-1])
+                print("-" * 50)
+
+                for idx, paragraph in enumerate(paragraphs):
+                    paragraph_text = paragraph.get_text(" ", strip=True).replace("\n", " ")
+                    print(f"Paragraph {idx}: {paragraph_text}")
+                    print("-" * 50)
+
+                break
+
+        # paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
+        #
+        # data = {"text": paragraphs}
+        # df = pd.DataFrame(data)
+        #
+        # df.to_pickle(os.path.join(bbc_data_dir, f"{decoded_title}.pkl"))
+
 else:
     print("Failed to retrieve the webpage")
