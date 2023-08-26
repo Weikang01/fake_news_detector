@@ -5,8 +5,6 @@ from html import unescape
 from config import pkl_dir
 from utils import *
 
-GENERATE_DATA = False
-
 url = "https://www.bbc.com/news"  # BBC News URL
 
 response = requests.get(url)
