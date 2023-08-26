@@ -3,7 +3,6 @@ import os
 import config
 import pandas as pd
 
-
 # loop through pkl files in pkl_dir
 for filename in os.listdir(config.pkl_dir):
     # load pkl file
