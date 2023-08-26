@@ -59,6 +59,10 @@ if response.status_code == 200:
         # Decode HTML entities in the title
         decoded_title = unescape(cleaned_title)
 
+        if decoded_title in titles:
+            print("Duplicate title:", decoded_title)
+            continue
+
         print("Title:", decoded_title)
         print("Href:", full_href)
         print("-" * 50)
