@@ -1,10 +1,13 @@
+import json
+import math
+
 import requests
 from bs4 import BeautifulSoup
 from utils import *
 
 
-class BBCSearchScraper:
-    url = "https://www.bbc.co.uk/search?q={keyword}&page={page}"
+class CNNSearchScraper:
+    url = 'https://search.prod.di.api.cnn.io/content?q={keyword}&size=10&from=0&page={page}&sort=relevance&types=article'
 
     def search(self, keyword, top_n=10):
         response = requests.get(self.url.format(keyword=keyword, page=1))
@@ -12,12 +15,9 @@ class BBCSearchScraper:
         if response.status_code == 200:
             page_content = response.content.decode("utf-8")
 
-            soup = BeautifulSoup(page_content, "html.parser")
-            container = soup.find('div', class_='ssrcss-1izxn3x-NumberedPagesButtonsContainer')
-            last_page_link = container.find_all('a')[-1]
+            json_data = json.loads(page_content)
 
-            # Get the number from the link text
-            last_page_number = int(last_page_link.get_text(strip=True))
+            last_page_number = math.floor(json_data['meta']['total'] / 10)
 
             titles = []
             texts = []
@@ -29,18 +29,17 @@ class BBCSearchScraper:
                     if response.status_code == 200:
                         page_content = response.content.decode("utf-8")
 
-                        soup = BeautifulSoup(page_content, "html.parser")
-                        a_tag = soup.find_all('a', class_='ssrcss-its5xf-PromoLink')
+                        json_data = json.loads(page_content)
 
-                        for a in a_tag:
-                            href = a.get('href')
-                            title = a.get_text(strip=True)
+                        for result in json_data['result']:
+                            title = result['headline']
+                            href = result['url']
                             print("Title:", title)
                             print("Href:", href)
                             print("-" * 50)
                             response = requests.get(href)
                             soup = BeautifulSoup(response.content, "html.parser")
-                            paragraphs = soup.find_all('p', class_='ssrcss-1s3rf6l-Paragraph')
+                            paragraphs = soup.find_all('div', class_='zn-body__paragraph')
                             paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
                             if len(paragraphs) == 0:
                                 paragraphs = soup.find_all("p")
@@ -59,9 +58,9 @@ class BBCSearchScraper:
                 if len(titles) == top_n:
                     break
 
-            return pd.DataFrame({"title": titles, "text": texts})
+            return pd.DataFrame({'title': titles, 'text': texts})
 
 
 if __name__ == '__main__':
-    scraper = BBCSearchScraper()
-    print(scraper.search("coronavirus"))
+    scraper = CNNSearchScraper()
+    print(scraper.search('coronavirus', top_n=10))
