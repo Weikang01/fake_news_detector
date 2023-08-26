@@ -30,6 +30,15 @@ if response.status_code == 200:
         print("Href:", full_href)
         print("-" * 50)
 
+        # send request to the full_href
+
+        response = requests.get(full_href)
+        # save html
+
+        if response.status_code == 200:
+            with open(f"{decoded_title}.html", "w", encoding="utf-8") as f:
+                f.write(response.content.decode("utf-8"))
+
         break
 else:
     print("Failed to retrieve the webpage")
