@@ -1,4 +1,5 @@
 # anything in ./data
+./models/*
 ./data/*
 *.html
 !*.py
