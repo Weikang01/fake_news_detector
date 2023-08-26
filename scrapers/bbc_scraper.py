@@ -6,8 +6,9 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from html import unescape
 from config import bbc_data_dir
-import pandas as pd
-import pickle
+from utils import *
+
+GENERATE_DATA = True
 
 url = "https://www.bbc.com/news"  # BBC News URL
 
@@ -42,6 +43,9 @@ if response.status_code == 200:
 
         print("href:", href)
 
+        if not href[-1].isdigit():
+            continue
+
         if href.startswith("/"):
             if href.startswith("/news/"):
                 page_type = "article"
@@ -73,35 +77,22 @@ if response.status_code == 200:
                     p for p in soup.find_all("p", attrs={"data-reactid": True})
                     if not any(excluded_class in p.get("class", []) for excluded_class in excluded_classes[page_type])
                 ]
-            elif page_type is PAGE_TYPE_ARTICLE:
-                # save html
-                # with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
-                #     f.write(response.content.decode("utf-8"))
 
+                if GENERATE_DATA:
+                    generate_data(bbc_data_dir, paragraphs, decoded_title)
+
+            elif page_type is PAGE_TYPE_ARTICLE:
                 paragraphs = []
                 for p in soup.find_all("p", class_=["ssrcss-1q0x1qg-Paragraph", "ssrcss-hmf8ql-BoldText"]):
                     paragraphs.append(p)
 
-                # for b in soup.find_all("b", class_="ssrcss-hmf8ql-BoldText"):
-                #     paragraphs.append(b)
-
-                print(paragraphs[-2])
-                print(paragraphs[-1])
-                print("-" * 50)
-
-                for idx, paragraph in enumerate(paragraphs):
-                    paragraph_text = paragraph.get_text(" ", strip=True).replace("\n", " ")
-                    print(f"Paragraph {idx}: {paragraph_text}")
-                    print("-" * 50)
+                if GENERATE_DATA:
+                    generate_data(bbc_data_dir, paragraphs, decoded_title)
+            else:
+                # save html
+                with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
+                    f.write(response.content.decode("utf-8"))
 
                 break
-
-        # paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
-        #
-        # data = {"text": paragraphs}
-        # df = pd.DataFrame(data)
-        #
-        # df.to_pickle(os.path.join(bbc_data_dir, f"{decoded_title}.pkl"))
-
 else:
     print("Failed to retrieve the webpage")
