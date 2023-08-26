@@ -1,7 +1,9 @@
 import requests
 import re
 from urllib.parse import urljoin
+from bs4 import BeautifulSoup
 from html import unescape
+from config import bbc_data_dir
 
 url = "https://www.bbc.com/news"  # BBC News URL
 
@@ -33,12 +35,22 @@ if response.status_code == 200:
         # send request to the full_href
 
         response = requests.get(full_href)
+
+        page_content = response.content
+
         # save html
+        # if response.status_code == 200:
+        #     with open(f"{decoded_title}.html", "w", encoding="utf-8") as f:
+        #         f.write(response.content.decode("utf-8"))
 
-        if response.status_code == 200:
-            with open(f"{decoded_title}.html", "w", encoding="utf-8") as f:
-                f.write(response.content.decode("utf-8"))
+        soup = BeautifulSoup(page_content, "html.parser")
 
+        paragraphs = soup.find_all("p", attrs={"data-reactid": True})
+
+        for paragraph in paragraphs:
+            paragraph_text = paragraph.get_text()
+            print(paragraph_text)
+            print("-" * 50)
         break
 else:
     print("Failed to retrieve the webpage")
