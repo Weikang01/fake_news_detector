@@ -1,3 +1,5 @@
+# anything in ./data
+./data/*
 *.html
 !*.py
 !*.md

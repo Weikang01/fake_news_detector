@@ -1,9 +1,13 @@
+import os.path
+
 import requests
 import re
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from html import unescape
 from config import bbc_data_dir
+import pandas as pd
+import pickle
 
 url = "https://www.bbc.com/news"  # BBC News URL
 
@@ -38,18 +42,29 @@ if response.status_code == 200:
 
         page_content = response.content
 
-        # save html
+        # # save html
         # if response.status_code == 200:
-        #     with open(f"{decoded_title}.html", "w", encoding="utf-8") as f:
+        #     with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
         #         f.write(response.content.decode("utf-8"))
 
         soup = BeautifulSoup(page_content, "html.parser")
 
-        paragraphs = soup.find_all("p", attrs={"data-reactid": True})
+        excluded_classes = [
+            "qa-sign-in-dialog__description",
+            "lx-c-sign-in-dialog__message",
+        ]
+
+        # Find paragraphs excluding those with the specified classes
+        paragraphs = [
+            p.get_text(" ", strip=True).replace("\n", " ")
+            for p in soup.find_all("p", attrs={"data-reactid": True})
+            if not any(excluded_class in p.get("class", []) for excluded_class in excluded_classes)
+        ]
+
+        # print(paragraphs[0])
 
         for paragraph in paragraphs:
-            paragraph_text = paragraph.get_text()
-            print(paragraph_text)
+            print(paragraph)
             print("-" * 50)
         break
 else:
