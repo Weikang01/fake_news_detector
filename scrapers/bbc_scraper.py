@@ -1,14 +1,11 @@
-import os.path
-
 import requests
-import re
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from html import unescape
-from config import bbc_data_dir
+from config import pkl_dir
 from utils import *
 
-GENERATE_DATA = True
+GENERATE_DATA = False
 
 url = "https://www.bbc.com/news"  # BBC News URL
 
@@ -30,6 +27,10 @@ excluded_classes = {
 }
 
 if response.status_code == 200:
+
+    titles = []
+    texts = []
+
     page_content = response.content.decode("utf-8")
 
     # Use regex to find all news titles and href attributes within the specified HTML structure
@@ -78,21 +79,26 @@ if response.status_code == 200:
                     if not any(excluded_class in p.get("class", []) for excluded_class in excluded_classes[page_type])
                 ]
 
-                if GENERATE_DATA:
-                    generate_data(bbc_data_dir, paragraphs, decoded_title)
+                paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
+                paragraphs = "\n".join(paragraphs)
+
+                titles.append(decoded_title)
+                texts.append(paragraphs)
 
             elif page_type is PAGE_TYPE_ARTICLE:
                 paragraphs = []
                 for p in soup.find_all("p", class_=["ssrcss-1q0x1qg-Paragraph", "ssrcss-hmf8ql-BoldText"]):
                     paragraphs.append(p)
 
-                if GENERATE_DATA:
-                    generate_data(bbc_data_dir, paragraphs, decoded_title)
-            else:
-                # save html
-                with open(os.path.join(bbc_data_dir, f"{decoded_title}.html"), "w", encoding="utf-8") as f:
-                    f.write(response.content.decode("utf-8"))
+                paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
+                paragraphs = "\n".join(paragraphs)
 
-                break
+                titles.append(decoded_title)
+                texts.append(paragraphs)
+
+    df = pd.DataFrame({"title": titles, "text": texts})
+
+    df.to_pickle(os.path.join(pkl_dir, "bbc.pkl"))
+    print("Done")
 else:
     print("Failed to retrieve the webpage")

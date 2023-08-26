@@ -1,6 +1,6 @@
 import os
 import re
-
+import config
 import pandas as pd
 
 
@@ -14,7 +14,7 @@ def save_html(base_dir, title, response):
         f.write(response.content.decode("utf-8"))
 
 
-def generate_data(base_dir, paragraphs, title):
+def generate_raw_pkl(base_dir, paragraphs, title):
     paragraphs = [p.get_text(" ", strip=True).replace("\n", " ") for p in paragraphs]
     data = {"text": paragraphs}
     df = pd.DataFrame(data)
