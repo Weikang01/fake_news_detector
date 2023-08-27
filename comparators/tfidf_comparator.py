@@ -31,9 +31,6 @@ class TFIDFComparator:
 
 
 if __name__ == '__main__':
-
-
-    # generate a sample document about coronavirus
     test_document = f"""
 The world has been grappling with the challenges posed by the coronavirus pandemic. From the initial outbreak in Wuhan, China, to its rapid spread across the globe, the virus has led to significant changes in our daily lives. Governments and health organizations have been working tirelessly to contain the virus, implement safety measures, and develop vaccines.
 
@@ -50,4 +47,3 @@ Please note that this text is generated for illustrative purposes and may not re
     documents = BBCSearchScraper().search("coronavirus", top_n=10)
     comparator = TFIDFComparator()
     print(comparator.compare(test_document, documents))
-
