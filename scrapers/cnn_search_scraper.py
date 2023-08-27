@@ -3,7 +3,7 @@ import math
 
 import requests
 from bs4 import BeautifulSoup
-from utils import *
+from .utils import *
 
 
 class CNNSearchScraper:

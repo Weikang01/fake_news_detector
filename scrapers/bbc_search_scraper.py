@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from utils import *
+from .utils import *
 
 
 class BBCSearchScraper:
@@ -64,4 +64,4 @@ class BBCSearchScraper:
 
 if __name__ == '__main__':
     scraper = BBCSearchScraper()
-    print(scraper.search("coronavirus"))
+    print(scraper.search("coronavirus", top_n=10))
