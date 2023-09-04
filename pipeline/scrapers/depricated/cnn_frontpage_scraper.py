@@ -1,7 +1,7 @@
 import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-from config import pkl_dir
+from pipeline.config import pkl_dir
 from utils import *
 
 url = 'https://www.cnn.com'

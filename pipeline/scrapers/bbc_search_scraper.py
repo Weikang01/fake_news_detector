@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from .utils import *
+from pipeline.scrapers.utils import *
 
 
 class BBCSearchScraper:

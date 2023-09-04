@@ -2,7 +2,7 @@ import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from html import unescape
-from config import pkl_dir
+from pipeline.config import pkl_dir
 from utils import *
 
 url = "https://www.bbc.com/news"  # BBC News URL

@@ -42,8 +42,8 @@ While we navigate these uncertain times, it's crucial to stay informed through r
 
 Please note that this text is generated for illustrative purposes and may not reflect the most up-to-date information or accurate details about the coronavirus pandemic. Always refer to trusted sources for accurate and current information.
 """
-    from scrapers.bbc_search_scraper import BBCSearchScraper
+    from pipeline.scrapers import Scraper
 
-    documents = BBCSearchScraper().search("coronavirus", top_n=10)
+    documents = Scraper().search("coronavirus", top_n=10)
     comparator = TFIDFComparator()
     print(comparator.compare(test_document, documents))

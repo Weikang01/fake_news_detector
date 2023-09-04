@@ -1,7 +1,8 @@
-# anything in ./data
-./models/*
-./data/*
-*.html
 !*.py
 !*.md
 !requirements.txt
+
+./models/*
+./data/*
+*.html
+test*.py
