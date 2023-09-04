@@ -1,7 +1,6 @@
 !*.py
 !*.md
 !requirements.txt
-
 ./models/*
 ./data/*
 *.html

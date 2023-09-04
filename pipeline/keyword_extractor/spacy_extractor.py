@@ -1,14 +1,23 @@
 import numpy as np
 import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
 from string import punctuation
 
 
 class SpacyKeywordExtractor:
 
     def __init__(self):
-        self.nlp = spacy.load('en_core_web_sm')
+        try:
+            self.nlp = spacy.load('en_core_web_sm')
+        except OSError:
+            import sys
+            import subprocess
+            python_executable = sys.executable
+
+            command = [python_executable, "-m", "spacy", "download", "en_core_web_sm"]
+            subprocess.run(command, check=True)
+            self.nlp = spacy.load('en_core_web_sm')
+
         self.tfidf_vectorizer = TfidfVectorizer()
 
     def get_keywords(self, text, num_keywords=10):
