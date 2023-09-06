@@ -16,4 +16,4 @@ class Scraper:
 
 if __name__ == '__main__':
     scraper = Scraper()
-    print(scraper.search('trump', 10))
+    print(scraper.search('trump', 1))
