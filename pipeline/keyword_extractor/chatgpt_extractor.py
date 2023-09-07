@@ -1,7 +1,8 @@
 from pipeline.config import *
+from pipeline.keyword_extractor import Extractor
 
 
-class ChatGPTExtractor:
+class ChatGPTExtractor(Extractor):
     def _text_handler(self, text):
         """
         sample input:

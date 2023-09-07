@@ -3,8 +3,10 @@ import spacy
 from sklearn.feature_extraction.text import TfidfVectorizer
 from string import punctuation
 
+from pipeline.keyword_extractor import Extractor
 
-class SpacyKeywordExtractor:
+
+class SpacyExtractor(Extractor):
 
     def __init__(self):
         try:
@@ -61,5 +63,5 @@ if __name__ == '__main__':
     Please note that this text is generated for illustrative purposes and may not reflect the most up-to-date information or accurate details about the coronavirus pandemic. Always refer to trusted sources for accurate and current information.
     """
 
-    extractor = SpacyKeywordExtractor()
+    extractor = SpacyExtractor()
     print(extractor.get_keywords(new_text))

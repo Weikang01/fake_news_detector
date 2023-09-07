@@ -2,9 +2,10 @@ from sentence_transformers import SentenceTransformer, util
 import spacy
 import torch
 from pipeline.config import retrieval_model_dir
+from pipeline.keyword_extractor import Extractor
 
 
-class EmbeddingExtractor:
+class EmbeddingExtractor(Extractor):
     model_name = "paraphrase-MiniLM-L6-v2"
     punctuation = r"""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
 
